@@ -48,8 +48,72 @@ function verify(refValue = null) {
   }
 }
 
+// Modal functions removed - verification now inline
+
+// Close modal when clicking outside - removed
+
+// Smooth scrolling for navigation
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function (e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  });
+});
+
+// Mobile menu toggle
+const hamburger = document.querySelector('.hamburger');
+const navMenu = document.querySelector('.nav-menu');
+
+if (hamburger) {
+  hamburger.addEventListener('click', () => {
+    navMenu.classList.toggle('active');
+    hamburger.classList.toggle('active');
+  });
+}
+
+// Header scroll effect
+window.addEventListener('scroll', () => {
+  const header = document.querySelector('header');
+  if (window.scrollY > 100) {
+    header.style.background = 'rgba(0, 51, 102, 0.98)';
+  } else {
+    header.style.background = 'rgba(0, 51, 102, 0.95)';
+  }
+});
+
+// Load hero background configuration
+async function loadHeroBackground() {
+  const hero = document.querySelector('.hero');
+  if (!hero) return;
+
+  let imageUrl = null;
+  try {
+    const res = await fetch('photo-config.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error(`photo-config.json load failed (${res.status})`);
+    const config = await res.json();
+    imageUrl = config.heroBackground;
+  } catch (e) {
+    console.warn('Could not load photo config or parse JSON. Using fallback background.', e);
+  }
+
+  if (imageUrl) {
+    hero.style.backgroundImage = `url('${imageUrl}')`;
+    hero.style.backgroundSize = 'cover';
+    hero.style.backgroundPosition = 'center';
+    hero.style.backgroundRepeat = 'no-repeat';
+  }
+}
+
+// Initialize
 async function init() {
   await loadDatabase();
+  await loadHeroBackground();
 
   const params = new URLSearchParams(window.location.search);
   const refParam = params.get("ref");
@@ -60,4 +124,4 @@ async function init() {
   }
 }
 
-window.onload = init;
+window.addEventListener('load', init);
